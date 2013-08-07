@@ -12,6 +12,11 @@ L = logging.getLogger(__name__)
 BASE_URL = 'http://api.zoopla.co.uk/api/v1/'
 
 
+class PropertyListing(object):
+    def __init__(self, member_variables):
+        self.__dict__ = member_variables
+
+
 class _ApiVersion1(object):
     def __init__(self, api_key, session_id=None, cache_seconds=(12 * 60 * 60)):
         self.api_key = self._validate_api_key(api_key)
@@ -130,7 +135,7 @@ class _ApiVersion1(object):
 
         for listing in listings:
             listing['meta'] = response_meta
-            yield listing
+            yield PropertyListing(listing)
 
     def get_session_id(self):
         raise NotImplementedError("This method isn't yet implemented.")
