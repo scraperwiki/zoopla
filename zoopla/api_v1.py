@@ -30,6 +30,12 @@ class _ApiVersion1(object):
         L.debug(url)
         return url
 
+    def _call_api(self, command, arguments):
+        validate_query_arguments(arguments)
+        url = self._make_url('property_listings', arguments)
+        f = download_url(url)
+        return json.loads(f.read())
+
     def zed_index(self):
         raise NotImplementedError("This method isn't yet implemented.")
 
@@ -51,14 +57,43 @@ class _ApiVersion1(object):
     def average_sold_prices(self):
         raise NotImplementedError("This method isn't yet implemented.")
 
-    def property_listings(self, **kwargs):
+    def property_listings(self, max_results=100, **kwargs):
         L.info('property_listings: {}'.format(kwargs))
-        validate_query_arguments(kwargs)
-        url = self._make_url('property_listings', kwargs)
-        f = download_url(url)
-        result = json.loads(f.read())
-        L.debug(result)
-        raise NotImplementedError("This method isn't yet implemented.")
+        if 'page_size' not in kwargs and 'page_number' not in kwargs:
+            L.debug("Automatically paging this request.")
+            num_yielded = 0
+            kwargs['page_size'] = 100
+            kwargs['page_number'] = 1
+            finished = False
+            while not finished:
+                response = self._call_api('property_listings', kwargs)
+                max_results = min(max_results, response['result_count'])
+
+                for listing in self._create_listings(response):
+                    yield listing
+                    num_yielded += 1
+                    if max_results is not None and num_yielded >= max_results:
+                        L.debug("Yielded {}, stopping.".format(num_yielded))
+                        finished = True
+                        break
+                kwargs['page_number'] += 1
+
+        else:
+            response = self._call_api('property_listings', kwargs)
+            for listing in self._create_listings(response):
+                yield listing
+
+    def _create_listings(self, api_response):
+        response_meta = dict(api_response)
+        del response_meta['listing']
+        L.debug("response meta: {}".format(response_meta))
+
+        listings = api_response['listing']
+        L.debug("{} listings".format(len(listings)))
+
+        for listing in listings:
+            listing['meta'] = response_meta
+            yield listing
 
     def get_session_id(self):
         raise NotImplementedError("This method isn't yet implemented.")
