@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import requests
+import requests_cache
+from cStringIO import StringIO
 
 class _ApiVersion1(object):
     def __init__(self, api_key, session_id=None):
@@ -46,6 +49,18 @@ class _ApiVersion1(object):
 
     def property_historic_listings(self):
         raise NotImplementedError("This method isn't yet implemented.")
+
+
+def install_cache(expire_after):
+    requests_cache.install_cache(
+        expire_after=expire_after,
+        allowable_methods=('GET',))
+
+
+def download_url(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return StringIO(response.content)
 
 
 def validate_query_arguments(arguments):
