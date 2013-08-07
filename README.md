@@ -6,7 +6,7 @@ Please refer to the [Zoopla API documentation](http://developer.zoopla.com/docs)
 
 ```python
 import zoopla
-api = zoopla.Api(version=1)
+api = zoopla.api(version=1, api_key='MY API KEY')
 
 for listing in api.property_listings(
         area='Liverpool',
