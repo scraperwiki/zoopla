@@ -87,10 +87,6 @@ class _ApiVersion1(object):
                 L.debug("Stop paging, yielded={}, result_count={}".format(
                     num_yielded, result_count))
                 return True
-            #elif reached_limit(
-            #        args['page_size'] + 1 * args['page_number'], result_count):
-            #    print("page_size limit")
-            #    return True
             else:
                 return False
 
