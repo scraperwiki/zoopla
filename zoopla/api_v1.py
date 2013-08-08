@@ -80,11 +80,11 @@ class _ApiVersion1(object):
             L.debug("yielded: {}, max_results: {}, result_count: {}".format(
                 num_yielded, max_results, result_count))
             if reached_limit(num_yielded, max_results):
-                L.info("Stop paging, yielded={}, max_results={}".format(
+                L.debug("Stop paging, yielded={}, max_results={}".format(
                     num_yielded, max_results))
                 return True
             elif reached_limit(num_yielded, result_count):
-                L.info("Stop paging, yielded={}, result_count={}".format(
+                L.debug("Stop paging, yielded={}, result_count={}".format(
                     num_yielded, result_count))
                 return True
             #elif reached_limit(
@@ -106,11 +106,11 @@ class _ApiVersion1(object):
             args['page_number'] += 1
 
     def property_listings(self, max_results=100, **kwargs):
-
-        L.info('property_listings: {}'.format(kwargs))
+        L.debug('property_listings(max_results={}, {})'.format(
+            max_results, kwargs))
         result_processor = self._create_listings
         if 'page_size' not in kwargs and 'page_number' not in kwargs:
-            L.info("Automatically paging this request.")
+            L.debug("Automatically paging this request.")
             generator = self._call_api_paged(
                 'property_listings',
                 kwargs,
