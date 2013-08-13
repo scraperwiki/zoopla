@@ -39,7 +39,12 @@ class _ApiVersion1(object):
         validate_query_arguments(arguments)
         url = self._make_url('property_listings', arguments)
         f = download_url(url)
-        return json.loads(f.read())
+        parsed = json.loads(f.read())
+        if 'error_code' in parsed:
+            # TODO: define an ApiError
+            raise RuntimeError("Error {}: {}".format(parsed['error_code'],
+                                                 parsed['error_string']))
+        return parsed
 
     def zed_index(self):
         raise NotImplementedError("This method isn't yet implemented.")
