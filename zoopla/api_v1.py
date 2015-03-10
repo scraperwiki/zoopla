@@ -72,6 +72,9 @@ class _ApiVersion1(object):
         There are a few conditions where we need to stop paging
         1) We've yielded max_results
         2) We've yielded result_count
+        3) We've reached page number 100 (with a page size of 100)
+        
+        3 is by design; see http://developer.zoopla.com/forum/read/162309
         """
         num_yielded = 0
         args['page_size'] = 100
@@ -90,6 +93,11 @@ class _ApiVersion1(object):
                 return True
             elif reached_limit(num_yielded, result_count):
                 L.debug("Stop paging, yielded={}, result_count={}".format(
+                    num_yielded, result_count))
+                return True
+            elif args['page_number'] == 100:
+                L.debug("Reached maximum allowable page number. "
+                        "Stop paging, yielded={}, result_count={}".format(
                     num_yielded, result_count))
                 return True
             else:
